@@ -1,10 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Painel - {{ usuario }}</title>
 </head>
-<body>
-
+<body style="font-family: sans-serif; max-width: 600px; margin: 60px auto;">
+    <h1>Painel de {{ usuario }}</h1>
+    <p><strong>Cargo Atual:</strong> {{ current_user.cargo | capitalize }}</p>
+    <hr>
+    <h3>Minhas Tarefas do Sistema:</h3>
+    <ul>
+        <li>Nenhuma tarefa vinculada a você no momento.</li>
+    </ul>
+    <hr>
+    <p><a href="{{ url_for('logout') }}">Sair da Conta</a></p>
 </body>
 </html>
