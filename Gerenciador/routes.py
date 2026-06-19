@@ -12,7 +12,7 @@ def homepage():
         usuario = Usuario.query.filter_by(email=formLogin.email.data).first()
         if usuario and bcrypt.check_password_hash(usuario.senha, formLogin.senha.data):
             login_user(usuario, remember=True)
-            return redirect(url_for('perfil', usuario=usuario.nome))
+            return redirect(url_for('perfil', id_usuario=usuario.id))
         else:
             flash('E-mail ou senha incorretos.', 'danger')
     return render_template('homepage.html', form=formLogin)
@@ -35,9 +35,24 @@ def criarconta():
         database.session.commit()
 
         login_user(usuario, remember=True)
-        return redirect(url_for('perfil', usuario=usuario.nome))
+        return redirect(url_for('perfil', id_usuario=usuario.id))
 
     return render_template('criarconta.html', form=formcriarconta)
+
+
+
+
+
+@app.route('/perfil/<id_usuario>')
+@login_required
+def perfil(id_usuario):
+    usuario = Usuario.query.get(int(id_usuario))
+    if int(id_usuario) == (current_user.id):
+        return render_template('perfil.html', usuario=current_user)
+    else:
+        usuario = Usuario.query.get(int(id))
+        return render_template('perfil.html', usuario=usuario)
+
 
 
 @app.route('/logout')
@@ -46,8 +61,3 @@ def logout():
     logout_user()
     return redirect(url_for('homepage'))
 
-
-@app.route('/perfil/<usuario>')
-@login_required
-def perfil(usuario):
-    return render_template('perfil.html', usuario=usuario)

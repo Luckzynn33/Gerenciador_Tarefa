@@ -2,10 +2,10 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel - {{ usuario }}</title>
+    <title>Painel - {{ usuario.username }}</title>
 </head>
-<body style="font-family: sans-serif; max-width: 600px; margin: 60px auto;">
-    <h1>Painel de {{ usuario }}</h1>
+<body >
+    <h1>Painel de {{ usuario.username }}</h1>
     <p><strong>Cargo Atual:</strong> {{ current_user.cargo | capitalize }}</p>
     <hr>
     <h3>Minhas Tarefas do Sistema:</h3>
