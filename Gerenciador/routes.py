@@ -1,8 +1,8 @@
 from flask import render_template, url_for, redirect, flash
 from flask_login import login_user, login_required, logout_user, current_user
 from Gerenciador import app, database, bcrypt
-from Gerenciador.forms import FormLogin, FormCriarConta
-from Gerenciador.models import Usuario
+from Gerenciador.forms import FormLogin, FormCriarConta, FormTarefa
+from Gerenciador.models import Usuario, Tarefa
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -40,18 +40,40 @@ def criarconta():
     return render_template('criarconta.html', form=formcriarconta)
 
 
-
-
-
-@app.route('/perfil/<id_usuario>')
+@app.route('/perfil/<id_usuario>', methods=['GET', 'POST'])
 @login_required
 def perfil(id_usuario):
-    usuario = Usuario.query.get(int(id_usuario))
-    if int(id_usuario) == (current_user.id):
-        return render_template('perfil.html', usuario=current_user)
+    id_usuario_int = int(id_usuario)
+    usuario = Usuario.query.get(id_usuario_int)
+
+    if id_usuario_int == int(current_user.id):
+        if current_user.cargo == 'gerente':
+            form = FormTarefa()
+            usuarios_sistema = Usuario.query.all()
+            form.id_responsavel.choices = [(u.id, u.nome) for u in usuarios_sistema]
+
+            if form.validate_on_submit():
+                nova_tarefa = Tarefa(
+                    titulo=form.titulo.data,
+                    descricao=form.descricao.data,
+                    demanda=form.demanda.data,
+                    prazo=form.prazo.data,
+                    id_Criador=current_user.id,
+                    id_Responsavel=form.id_responsavel.data
+                )
+                database.session.add(nova_tarefa)
+                database.session.commit()
+                flash('Tarefa atribuída com sucesso!', 'success')
+                return redirect(url_for('perfil', id_usuario=current_user.id))
+        else:
+            form = None  # Se for funcionário, não gera o formulário no backend
+
+        tarefas = Tarefa.query.filter_by(id_Responsavel=current_user.id).all()
+        return render_template('perfil.html', usuario=current_user, form=form, tarefas=tarefas)
+
     else:
-        usuario = Usuario.query.get(int(id))
-        return render_template('perfil.html', usuario=usuario)
+        tarefas_outro = Tarefa.query.filter_by(id_Responsavel=id_usuario_int).all()
+        return render_template('perfil.html', usuario=usuario, form=None, tarefas=tarefas_outro)
 
 
 

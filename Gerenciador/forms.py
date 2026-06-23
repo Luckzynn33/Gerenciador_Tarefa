@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, SelectField, TextAreaField, DateField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from Gerenciador.models import Usuario
 
@@ -27,3 +27,12 @@ class FormCriarConta(FlaskForm):
         usuario = Usuario.query.filter_by(email=email.data).first()
         if usuario:
             raise ValidationError("Email já cadastrado. Faça login para continuar")
+
+
+class FormTarefa(FlaskForm):
+    titulo = StringField('Título da Tarefa', validators=[DataRequired()])
+    descricao = TextAreaField('Descrição')
+    demanda = SelectField('Prioridade/Demanda', choices=[('baixa', 'Baixa'), ('media', 'Média'), ('alta', 'Alta')], default='media')
+    prazo = DateField('Prazo de Conclusão', validators=[DataRequired()])
+    id_responsavel = SelectField('Responsável pela Tarefa', coerce=int, validators=[DataRequired()])
+    botao_confirmacao = SubmitField('Criar Tarefa')

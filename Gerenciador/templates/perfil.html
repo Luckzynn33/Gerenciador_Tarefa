@@ -2,17 +2,114 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel - {{ usuario.username }}</title>
+    <title>Meu Gerenciador de Tarefas</title>
 </head>
-<body >
-    <h1>Painel de {{ usuario.username }}</h1>
-    <p><strong>Cargo Atual:</strong> {{ current_user.cargo | capitalize }}</p>
+<body>
+
+    <div>
+        {% if form %}
+            <h2>Painel de Controle: {{ usuario.nome }}</h2>
+            <p><strong>Função:</strong> {{ usuario.cargo }} (Logado)</p>
+        {% else %}
+            <h2>Tarefas de: {{ usuario.nome }}</h2>
+            <p><strong>Cargo:</strong> {{ usuario.cargo }}</p>
+        {% endif %}
+    </div>
+
     <hr>
-    <h3>Minhas Tarefas do Sistema:</h3>
-    <ul>
-        <li>Nenhuma tarefa vinculada a você no momento.</li>
-    </ul>
+
+    <div>
+        {% if form %}
+            <button type="button" id="btn-abrir-tarefa">+ Criar Nova Tarefa</button>
+
+            <div id="container-formulario" style="display: none;">
+                <h3>Formulário de Tarefa</h3>
+
+                <form method="POST" action="">
+                    {{ form.csrf_token }}
+
+                    <p>
+                        {{ form.titulo.label }} <br>
+                        {{ form.titulo(placeholder="Digite o título da tarefa") }}
+                    </p>
+
+                    <p>
+                        {{ form.descricao.label }} <br>
+                        {{ form.descricao(placeholder="Escreva os detalhes aqui...") }}
+                    </p>
+
+                    <p>
+                        {{ form.id_responsavel.label }} <br>
+                        {{ form.id_responsavel() }}
+                    </p>
+
+                    <p>
+                        {{ form.prazo.label }} <br>
+                        {{ form.prazo(type="date") }}
+                    </p>
+
+                    <p>
+                        {{ form.demanda.label }} <br>
+                        {{ form.demanda() }}
+                    </p>
+
+                    <p>
+                        {{ form.botao_confirmacao() }}
+                        <button type="button" id="btn-cancelar-tarefa">Cancelar</button>
+                    </p>
+                </form>
+            </div>
+
+            <script>
+                const btnAbrir = document.getElementById('btn-abrir-tarefa');
+                const btnCancelar = document.getElementById('btn-cancelar-tarefa');
+                const containerForm = document.getElementById('container-formulario');
+
+                btnAbrir.addEventListener('click', function() {
+                    containerForm.style.display = 'block';
+                    btnAbrir.style.display = 'none';
+                });
+
+                btnCancelar.addEventListener('click', function() {
+                    containerForm.style.display = 'none';
+                    btnAbrir.style.display = 'block';
+                });
+            </script>
+            <br>
+        {% endif %}
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p><strong>* {{ message }} *</strong></p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <hr>
-    <p><a href="{{ url_for('logout') }}">Sair da Conta</a></p>
+
+    <div>
+        <h3>Quadro de Tarefas</h3>
+
+        {% for tarefa in tarefas %}
+            <div>
+                <h4>{{ tarefa.titulo }} — <em>Status: {{ tarefa.status }}</em></h4>
+                <p>{{ tarefa.descricao }}</p>
+                <p>
+                    <small>Prazo: {{ tarefa.prazo.strftime('%d/%m/%Y') if tarefa.prazo else 'Sem prazo' }}</small> |
+                    <small>Prioridade: {{ tarefa.demanda }}</small>
+                </p>
+                <hr>
+            </div>
+        {% else %}
+            <p>Nenhuma tarefa atribuída para este perfil no momento.</p>
+        {% endfor %}
+    </div>
+
+    <p>
+        <a href="{{ url_for('logout') }}">Sair do Sistema</a>
+    </p>
+
 </body>
 </html>

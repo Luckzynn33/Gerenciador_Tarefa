@@ -1,3 +1,5 @@
+from flask_wtf import FlaskForm
+
 from Gerenciador import database, login_manager
 from datetime import datetime
 from flask_login import UserMixin
@@ -23,3 +25,5 @@ class Tarefa(database.Model):
     prazo = database.Column(database.DateTime, nullable=False)
     id_Criador = database.Column(database.Integer, database.ForeignKey('usuario.id'), nullable=False)
     id_Responsavel = database.Column(database.Integer, database.ForeignKey('usuario.id'), nullable=False)
+
+
